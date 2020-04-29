@@ -4,12 +4,12 @@
       <div class="col-md-6 col-sm-12 col-12">
         <div class="panel panel-info">
           <div class="panel-heading">
-            <span class="badge">{{ members }}</span> Members
+            <span class="badge">{{ Object.keys(members).length }}</span> Members
           </div>
           <div class="panel-body">
             <div v-if="joined">
               <em><span v-text="status"></span></em>
-              <div class="chat-wrapper">
+              <div class="chat-wrapper" ref="chatWrapper">
                 <ul class="chat">
                   <li class="left clearfix" v-for="message in messages">
                     <div class="chat-body clearfix">
@@ -32,6 +32,10 @@
                   <span class="input-group-btn">
                     <button class="btn btn-primary btn-sm" id="btn-chat" @click="sendMessage">Send</button>
                   </span>
+                </div><br/>
+                <div class="input-group">
+                  Members : 
+                  <span v-for="member in members"><b>{{ member }}</b>, </span>
                 </div>
               </div>
             </div>
@@ -62,7 +66,7 @@ module.exports = {
       joined: false,
       room: 'general',
       username: '',
-      members: 0,
+      members: {},
       newMessage: '',
       messages: [],
       status: ''
@@ -79,9 +83,9 @@ module.exports = {
       this.init()
       this.joined = true
       this.status = `${this.username} joined the chat`
+      this.usernames = {}
 
       this.listen()
-      console.log(this.$refs)
 
       this.$nextTick(() => {
         this.$refs.messageInputField.focus()
@@ -105,36 +109,38 @@ module.exports = {
       }
 
       this.messages.push(message)
-      this.updateCount()
+      this.scrollDown()
     },
 
     listen () {
       const $this = this
       this.p2pt.on('peerconnect', (peer) => {
         $this.peers[peer.id] = peer
-        $this.updateCount()
       })
 
       this.p2pt.on('peerclose', (peer) => {
         delete $this.peers[peer.id]
-        $this.updateCount()
+        delete $this.members[peer.id]
       })
 
       this.p2pt.on('msg', (peer, msg) => {
-        $this.updateCount()
-
         msg = JSON.parse(msg)
         
+        $this.members[peer.id] = msg.username
         $this.messages.push({
           username: msg.username,
           message: msg.message
         })
+        $this.scrollDown()
       })
       this.p2pt.start()
     },
 
-    updateCount () {
-      this.members = Object.keys(this.peers).length
+    scrollDown () {
+      this.$nextTick(() => {
+        var elem = this.$refs.chatWrapper
+        elem.scrollTop = elem.clientHeight + elem.scrollHeight
+      })
     }
   }
 }
