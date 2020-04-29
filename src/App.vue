@@ -76,7 +76,18 @@ module.exports = {
   methods: {
     init () {
       this.peers = {}
-      this.p2pt = new P2PT(['ws://localhost:5000'], this.room)
+
+      let announceURLs = [
+        "wss://tracker.openwebtorrent.com",
+        "wss://tracker.sloppyta.co:443/announce",
+        "wss://tracker.novage.com.ua:443/announce",
+        "wss://tracker.btorrent.xyz:443/announce",
+      ]
+      if (window.location.hostname === "localhost") {
+        announceURLs = ["ws://localhost:5000"]
+      }
+
+      this.p2pt = new P2PT(announceURLs, this.room)
     },
 
     joinChat () {
