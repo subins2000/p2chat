@@ -5,8 +5,9 @@ const CleanWebpackPlugin = require('clean-webpack-plugin'); //installed via npm
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const { VueLoaderPlugin } = require('vue-loader')
 
-const buildPath = path.resolve(__dirname, 'dist');
+const buildPath = path.resolve(__dirname, '');
 
 module.exports = {
     devtool: 'source-map',
@@ -28,6 +29,10 @@ module.exports = {
                 options: {
                     presets: ['env']
                 }
+            },
+            {
+                test: /\.vue$/,
+                use: 'vue-loader'
             },
             {
                 test: /\.(scss|css|sass)$/,
@@ -91,6 +96,7 @@ module.exports = {
             // Inject the js bundle at the end of the body of the given template
             inject: 'body',
         }),
+        new VueLoaderPlugin(),
         new CleanWebpackPlugin(buildPath),
         new FaviconsWebpackPlugin({
             // Your source logo
