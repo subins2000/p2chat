@@ -7,7 +7,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const { VueLoaderPlugin } = require('vue-loader')
 
-const buildPath = path.resolve(__dirname, '');
+const buildPath = path.resolve(__dirname, 'build');
 
 module.exports = {
     devtool: 'source-map',
