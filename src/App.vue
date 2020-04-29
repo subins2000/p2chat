@@ -1,47 +1,51 @@
 <template>
-  <div id="app" class="row">
-    <div class="col-md-6 col-md-offset-3">
-      <div class="panel panel-info">
-        <div class="panel-heading">
-          <span class="badge">{{ members }}</span> Members
-        </div>
-        <div class="panel-body">
-          <div v-if="joined">
-            <em><span v-text="status"></span></em>
-            <ul class="chat">
-              <li class="left clearfix" v-for="message in messages">
-                <div class="chat-body clearfix">
-                  <div class="header">
-                    <strong class="primary-font">
-                      {{ message.username }}
-                    </strong>
-                  </div>
-                  <p>
-                    {{ message.message }}
-                  </p>
+  <div class="container">
+    <div id="app" class="row">
+      <div class="col-md-6 col-sm-12 col-12">
+        <div class="panel panel-info">
+          <div class="panel-heading">
+            <span class="badge">{{ members }}</span> Members
+          </div>
+          <div class="panel-body">
+            <div v-if="joined">
+              <em><span v-text="status"></span></em>
+              <div class="chat-wrapper">
+                <ul class="chat">
+                  <li class="left clearfix" v-for="message in messages">
+                    <div class="chat-body clearfix">
+                      <div class="header">
+                        <strong class="primary-font">
+                          {{ message.username }}
+                        </strong>
+                      </div>
+                      <p>
+                        {{ message.message }}
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+              <div class="panel-footer">
+                <div class="input-group">
+                  <input id="btn-input" type="text" name="message" class="form-control input-sm" placeholder="Type your message here..." v-model="newMessage" ref="messageInputField" @keyup.enter="sendMessage">
+                  
+                  <span class="input-group-btn">
+                    <button class="btn btn-primary btn-sm" id="btn-chat" @click="sendMessage">Send</button>
+                  </span>
                 </div>
-              </li>
-            </ul>
-            <div class="panel-footer">
-              <div class="input-group">
-                <input id="btn-input" type="text" name="message" class="form-control input-sm" placeholder="Type your message here..." v-model="newMessage" @keyup.enter="sendMessage">
-                
-                <span class="input-group-btn">
-                  <button class="btn btn-primary btn-sm" id="btn-chat" @click="sendMessage">Send</button>
-                </span>
               </div>
             </div>
-          </div>
-          <div v-else>
-            <div class="form-group">
-              <label>Room Name</label>
-              <input type="text" class="form-control" placeholder="chat room name" v-model="room" @keyup.enter="joinChat">
+            <div v-else>
+              <div class="form-group">
+                <label>Room Name</label>
+                <input type="text" class="form-control" placeholder="chat room name" v-model="room" @keyup.enter="joinChat">
+              </div>
+              <div class="form-group">
+                <label>Username</label>
+                <input type="text" class="form-control" placeholder="enter your username to join chat" v-model="username" @keyup.enter="joinChat">
+              </div>
+              <button class="btn btn-primary" @click="joinChat">JOIN</button>
             </div>
-            <div class="form-group">
-              <label>Username</label>
-              <input type="text" class="form-control" placeholder="enter your username to join chat" v-model="username" @keyup.enter="joinChat">
-            </div>
-            <button class="btn btn-primary" @click="joinChat">JOIN</button>
           </div>
         </div>
       </div>
@@ -77,9 +81,17 @@ module.exports = {
       this.status = `${this.username} joined the chat`
 
       this.listen()
+      console.log(this.$refs)
+
+      this.$nextTick(() => {
+        this.$refs.messageInputField.focus()
+      })
     },
 
     sendMessage () {
+      if (this.newMessage.trim() === '')
+        return
+
       const message = {
         username: this.username,
         message: this.newMessage
@@ -93,22 +105,23 @@ module.exports = {
       }
 
       this.messages.push(message)
+      this.updateCount()
     },
 
     listen () {
       const $this = this
       this.p2pt.on('peerconnect', (peer) => {
-        $this.members = $this.peers.length
         $this.peers[peer.id] = peer
+        $this.updateCount()
       })
 
       this.p2pt.on('peerclose', (peer) => {
-        $this.members = $this.peers.length
         delete $this.peers[peer.id]
+        $this.updateCount()
       })
 
       this.p2pt.on('msg', (peer, msg) => {
-        $this.members = $this.peers.length
+        $this.updateCount()
 
         msg = JSON.parse(msg)
         
@@ -118,6 +131,10 @@ module.exports = {
         })
       })
       this.p2pt.start()
+    },
+
+    updateCount () {
+      this.members = Object.keys(this.peers).length
     }
   }
 }
