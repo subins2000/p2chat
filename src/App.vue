@@ -46,7 +46,7 @@
               </div>
               <div class="form-group">
                 <label>Username</label>
-                <input type="text" class="form-control" placeholder="enter your username to join chat" v-model="username" @keyup.enter="joinChat">
+                <input type="text" class="form-control" placeholder="enter your username to join chat" v-focus v-model="username" @keyup.enter="joinChat">
               </div>
               <button class="btn btn-primary" @click="joinChat">JOIN</button>
             </div>
