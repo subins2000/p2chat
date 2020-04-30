@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div id="app" class="row">
-      <div class="col-md-6 col-sm-12 col-12">
+      <div class="col-xl-8 col-lg-12 col-md-6 col-sm-12 col-12">
         <div class="panel panel-info">
           <div class="panel-heading">
             <span class="badge">{{ Object.keys(members).length }}</span> Members
