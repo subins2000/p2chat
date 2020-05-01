@@ -91,7 +91,7 @@ module.exports = {
     },
 
     joinChat () {
-      if (this.room.trim() === '') {
+      if (this.room.trim() === '' || this.username.trim() === '') {
         return
       }
 
